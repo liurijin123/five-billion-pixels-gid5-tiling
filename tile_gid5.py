@@ -1,12 +1,12 @@
-"""Create 256×256 GID5 semantic-segmentation tiles from Five-Billion-Pixels.
+"""从 Five-Billion-Pixels 生成 256×256 的 GID5 语义分割样本。
 
-The program deliberately keeps GID5 labels unchanged:
+程序保留 GID5 原始标签编码，不进行重映射：
 
-    0 = unlabeled / ignore_index
-    1 = built-up, 2 = farmland, 3 = forest, 4 = meadow, 5 = water
+    0 = 未标注／ignore_index
+    1 = 建成区，2 = 农田，3 = 森林，4 = 草地，5 = 水体
 
-Use a six-channel model head together with
-``torch.nn.CrossEntropyLoss(ignore_index=0)`` when training on its output.
+使用本程序输出训练模型时，模型头应输出六个通道，并配合
+``torch.nn.CrossEntropyLoss(ignore_index=0)`` 使用。
 """
 
 from __future__ import annotations
@@ -70,7 +70,7 @@ LABEL_COLORS = np.array(
 
 @dataclass(frozen=True)
 class Scene:
-    """A verified image/label pair from the local GID5 copy."""
+    """表示一对已经通过检查的本地 GID5 影像与标签。"""
 
     scene_id: str
     image_path: Path
@@ -85,19 +85,19 @@ class Scene:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Generate non-overlapping 256×256 GID5 training tiles with Rasterio."
+        description="使用 Rasterio 生成无重叠的 256×256 GID5 训练样本。"
     )
     parser.add_argument(
         "--dataset-root",
         type=Path,
         required=True,
-        help="Root containing Image__8bit_NirRGB/ and GID5/Annotation__index/.",
+        help="包含 Image__8bit_NirRGB/ 和 GID5/Annotation__index/ 的数据集根目录。",
     )
     parser.add_argument(
         "--output-root",
         type=Path,
         required=True,
-        help="New or resumable directory for generated tiles and manifests.",
+        help="用于保存切块和清单的新目录或可断点续跑目录。",
     )
     return parser.parse_args()
 
@@ -111,11 +111,11 @@ def fail(message: str) -> None:
 
 
 def atomic_replace_path(path: Path, writer: Callable[[Path], None]) -> None:
-    """Write a file beside its final location and publish it atomically.
+    """先在目标文件旁写入临时文件，再以原子操作发布为正式文件。
 
-    Existing final files are never overwritten. A remaining ``.part`` file is
-    treated as evidence of an interrupted earlier run and must be inspected by
-    the user before resuming.
+    程序不会覆盖已经存在的正式文件。若发现遗留的 ``.part`` 文件，说明
+    之前的运行可能中断；继续处理前必须由用户检查，程序不会自行删除。
+    这样可以保留诊断依据，避免把不完整文件误认为正式结果。
     """
 
     if path.exists():
@@ -128,7 +128,7 @@ def atomic_replace_path(path: Path, writer: Callable[[Path], None]) -> None:
         writer(temporary)
         os.replace(temporary, path)
     except Exception:
-        # Keep the .part file for diagnosis. It is never silently deleted.
+        # 保留 .part 文件用于诊断，程序绝不静默删除它。
         raise
 
 
@@ -177,12 +177,12 @@ def read_csv_rows(path: Path) -> list[dict[str, Any]]:
 
 
 def open_raw_image(path: Path) -> rasterio.io.DatasetReader:
-    """Open the four stored TIFF samples without GDAL's CMYK-to-RGBA conversion.
+    """读取 TIFF 中的四个存储通道，避免 GDAL 执行 CMYK 到 RGBA 的转换。
 
-    The distributed 8-bit TIFF files are tagged as CMYK even though the dataset
-    directory identifies their four stored samples as NIR, R, G and B. A normal
-    GDAL/Rasterio open converts these samples to RGBA and turns band 4 into an
-    opaque alpha channel. The GTIFF_RAW prefix preserves the stored bytes.
+    发布的 8 位 TIFF 被标记为 CMYK，但数据集目录说明四个存储通道依次为
+    NIR、R、G、B。使用常规 GDAL/Rasterio 方式打开时，这些通道会被转换为
+    RGBA，第四波段也会变成不透明的 Alpha 通道。添加 GTIFF_RAW 前缀可保留
+    文件中实际存储的字节。
     """
 
     return rasterio.open("GTIFF_RAW:" + str(path.resolve()))
@@ -469,7 +469,7 @@ def preview_score(row: dict[str, Any]) -> tuple[int, int, int]:
     counts = [int(row[f"pixels_class_{class_id}"]) for class_id in range(1, 6)]
     diversity = sum(count > 0 for count in counts)
     valid_pixels = sum(counts)
-    # Prefer a meaningful mixed-class tile; then a tile with more labelled pixels.
+    # 优先选择包含多种类别的有效样本，其次选择有效标注像元更多的样本。
     return diversity, valid_pixels, -int(row["row_off"]) - int(row["col_off"])
 
 
@@ -613,7 +613,7 @@ def main() -> int:
 
 if __name__ == "__main__":
     try:
-        # GeoTIFFs without spatial metadata are still valid training inputs.
+        # 即使没有空间元数据，GeoTIFF 仍可作为深度学习训练输入。
         import warnings
 
         warnings.filterwarnings("ignore", category=NotGeoreferencedWarning)
