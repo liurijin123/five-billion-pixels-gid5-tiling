@@ -517,7 +517,7 @@ def check_configuration(layout: dict[str, Path], dataset_root: Path) -> None:
         "stride": STRIDE,
         "edge_policy": "drop_incomplete_right_and_bottom",
         "empty_label_policy": "skip_tiles_with_only_label_0",
-        "label_encoding": CLASS_NAMES,
+        "label_encoding": {str(key): value for key, value in CLASS_NAMES.items()},
         "training_contract": "six_output_channels_with_CrossEntropyLoss(ignore_index=0)",
     }
     if config_path.exists():
