@@ -1,0 +1,49 @@
+# 虚拟环境与本地配置
+.venv/
+venv/
+env/
+.env
+.env.*
+!.env.example
+
+# Python 缓存与测试产物
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# 编辑器与系统文件
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# 日志、数据与本地运行结果
+*.log
+data/
+runs/
+checkpoints/
+outputs/
+
+# 模型与遥感大文件默认不发布；仅允许经核对的小型演示资产例外
+*.ckpt
+*.pth
+*.pt
+*.onnx
+*.tif
+*.tiff
+*.h5
+*.hdf5
+
+# 密钥与私有配置
+*.pem
+*.key
+*.p12
+credentials*.json
+secrets*.json
