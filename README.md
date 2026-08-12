@@ -124,6 +124,6 @@ python -m venv .venv
 
 原始数据集和切块结果不属于本代码仓库，也不会上传 GitHub。仓库只发布正式程序、依赖清单和使用说明。
 
-- 仓库：待上传
-- 状态：待上传
-- 最后验证日期：不适用
+- 仓库：https://github.com/liurijin123/five-billion-pixels-gid5-tiling
+- 状态：已发布，`main` 分支远端提交已核对
+- 最后验证日期：2026-08-12
