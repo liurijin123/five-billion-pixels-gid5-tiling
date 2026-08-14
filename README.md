@@ -1,6 +1,6 @@
 # Five-Billion-Pixels GID5 256×256 切块
 
-配套文章：《Five-Billion-Pixels 本地数据处理：生成 256×256 的 GID5 语义分割样本》
+配套文章：《遥感语义分割数据准备：Five-Billion-Pixels 的影像与标签切块》
 
 本程序使用 Rasterio 将 Five-Billion-Pixels 的 150 景四波段 8 位影像与 GID5 索引标签同步切成 256×256 的语义分割样本。
 
