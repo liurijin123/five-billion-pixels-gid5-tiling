@@ -126,4 +126,4 @@ python -m venv .venv
 
 - 仓库：https://github.com/liurijin123/five-billion-pixels-gid5-tiling
 - 状态：已发布，`main` 分支远端提交已核对
-- 最后验证日期：2026-08-12
+- 最后验证日期：2026-08-14
